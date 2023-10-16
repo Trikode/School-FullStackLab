@@ -1,0 +1,81 @@
+{
+  "extends": [
+    "next/core-web-vitals",
+    "prettier"
+  ],
+  "rules": {
+    /**
+		 * elements with no content should be self-closing (img etc.)
+		 * semicolons required at the end of each line
+		 * if there are multiple props/attributes, put them on separate lines
+		 * the rule above is ignored if the line is < 80 printWidth
+		 * the first prop/attribute should be on the same line as the opening tag
+		 */
+    "next/image": "off",
+    "@next/next/no-img-element": "off",
+    "jsx-a11y/alt-text": "off", // alt text in img
+    "react/self-closing-comp": [
+      "error",
+      {
+        "component": true,
+        "html": true
+      }
+    ],
+    // semicolons required at the end of each line
+    "semi": [
+      "error",
+      "always"
+    ],
+    "react/jsx-max-props-per-line": [
+      "error",
+      {
+        "maximum": 1,
+        "when": "multiline"
+      }
+    ],
+    "react/jsx-first-prop-new-line": [
+      "error",
+      "multiline"
+    ],
+    // React rules
+    "react-hooks/rules-of-hooks": "off",
+    "react-hooks/exhaustive-deps": "off",
+    "simple-import-sort/imports": [
+      "error",
+      {
+        "groups": [
+          [
+            "^next", // Next.js packages
+            "^react", // React packages
+            "^react-dom",
+            "/layout" // Layout
+          ],
+          [
+            "^@supabase", // Supabase
+            "/context",
+            "/lib",
+            "utils"
+          ],
+          // FramerMotion and ChakraUI
+          [
+            "framer-motion"
+          ]
+          // Components from here
+        ]
+      }
+    ]
+  },
+  "plugins": [
+    "simple-import-sort"
+  ],
+  "overrides": [
+    {
+      "files": [
+        "*.js",
+        "*.jsx",
+        "*.ts",
+        "*.tsx"
+      ]
+    }
+  ]
+}

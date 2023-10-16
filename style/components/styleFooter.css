@@ -1,0 +1,38 @@
+.Footer {
+  padding: 6rem 0 4rem;
+  background-color: var(--bgGrey);
+  gap: 3rem;
+  color: black;
+}
+
+.Sections {
+  padding: 0 8% 0 10%;
+  justify-content: space-evenly;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.FooterCard {
+  width: 12.5rem;
+  height: 9.5rem;
+}
+
+@media screen and (max-width: 1060px) {
+  .Sections {
+    padding: 0 4% 0 8%;
+  }
+}
+
+@media screen and (max-width: 900px) {
+  .Sections {
+    padding: 0 20%;
+    flex-wrap: wrap;
+  }
+}
+
+@media screen and (max-width: 520px) {
+  .Sections {
+    padding: 0 4% 0 10%;
+    flex-wrap: wrap;
+  }
+}

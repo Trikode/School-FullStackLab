@@ -1,0 +1,121 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  /* box-shadow: 0 0 1px 1px red inset; */
+  /* outline: 1px dashed red; */
+}
+
+body,
+main {
+  font-family: var(--font);
+  /* overflow-x: hidden; */
+}
+
+.Full {
+  width: 100%;
+}
+
+@media screen and (max-width: 700px) {
+  Html {
+    font-size: 12px;
+  }
+}
+
+:root {
+  --font: 'Poppins', sans-serif;
+  --fontSystem: system-ui;
+  --fontSegoe: "Segoe UI", Arial, sans-serif;
+
+  --borderBlack: rgb(0, 0, 0, 0.09);
+
+  --blackGradient: linear-gradient(80deg, #0e0e0e 0%, #2e2e2e 100%);
+  /* Button bg */
+
+  --bgGrey: #fafafb;
+}
+
+.Bold {
+  font-weight: 600;
+}
+
+.Thin {
+  font-weight: 400;
+}
+
+/* School in home, Error 404 */
+.Title {
+  font-size: 3.75rem;
+}
+
+.Subtitle {
+  font-size: 2.4rem;
+}
+
+.Big {
+  font-size: 1.6rem;
+  line-height: normal;
+}
+
+.SemiBig {
+  font-size: 1.2rem;
+  line-height: normal;
+}
+
+.MidLarge {
+  font-size: 1.1rem;
+  line-height: normal;
+}
+
+.Mid {
+  font-size: 1rem;
+  line-height: normal;
+}
+
+.Small {
+  font-size: 0.8rem;
+  line-height: normal;
+}
+
+.Flex {
+  display: flex;
+}
+
+.Column {
+  flex-direction: column;
+}
+
+.Center {
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.SpaceBetCen {
+  justify-content: space-between;
+  align-items: center;
+}
+
+.StartLeft {
+  align-items: flex-start;
+  text-align: left;
+}
+
+.LeftCenter {
+  justify-content: flex-start;
+  align-items: center;
+  text-align: left;
+}
+
+.EndRight {
+  justify-content: flex-end;
+  align-items: flex-end;
+}
+
+.SecondaryText {
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.onHover:hover {
+  color: rgba(0, 0, 0, 0.9);
+}

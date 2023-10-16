@@ -1,0 +1,36 @@
+{
+  "name": "school",
+  "description": "Full-Stack Lab",
+  "authors": [
+    {
+      "name": "Filippo Leone",
+      "email": "fleone.job@gmail.com"
+    }
+  ],
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "format": "prettier --write \"**/*.{js,jsx,json,css,scss,md}\" --config ./.prettierrc --ignore-path ./.gitignore"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.5.0",
+    "next": "13.1.6",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-modern-drawer": "^1.2.0"
+  },
+  "devDependencies": {
+    "@supabase/auth-helpers-nextjs": "^0.5.4",
+    "@supabase/auth-helpers-react": "^0.3.1",
+    "@types/node": "18.15.11",
+    "@types/react": "18.0.37",
+    "eslint": "8.33.0",
+    "eslint-config-next": "13.1.6",
+    "eslint-config-prettier": "^8.6.0",
+    "eslint-plugin-simple-import-sort": "^10.0.0",
+    "framer-motion": "^10.11.5",
+    "prettier": "^2.8.3"
+  }
+}
