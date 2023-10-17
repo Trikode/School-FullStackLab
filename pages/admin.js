@@ -4,32 +4,20 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { AdminLayout, LoadingWaiting } from "../layout/SignInLayout";
 
-import { useProfile } from "../context/user";
 import { paymentMethods } from "../utils/lists";
 
 import { AnimatePresence, motion } from "framer-motion";
 
 import { ButtonGreyWithIcon } from "../components/elements/Button";
+import { styleUnderline } from "../style/styles";
 
-export const tabs = ['Orders', 'Products', 'Stats'];
+const tabs = ['Orders', 'Products', 'Stats'];
 
 export default function Admin() {
   const router = useRouter();
 
-  const {
-    selectedTab,
-    setSelectedTab,
-
-  } = useProfile();
-
-  const styleUnderline = {
-    position: 'absolute',
-    bottom: '-1px',
-    left: '0',
-    right: '0',
-    height: '1px',
-    backgroundColor: 'var(--borderBlack)',
-  };
+  // Admin Panel
+  const [selectedTab, setSelectedTab] = useState(tabs[0]);
 
   return (
     <AdminLayout

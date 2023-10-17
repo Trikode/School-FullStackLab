@@ -81,6 +81,7 @@ export function ListSelection({
 export default function InputLabel({
   widthValue = '15rem',
   label,
+  type = 'text',
   inputmode = 'text',
   value = '',
   maxValueChar = 300,
@@ -118,7 +119,7 @@ export default function InputLabel({
             outline: 'none',
             caretColor: 'black',
           }}
-          // type={type}
+          type={type}
           inputMode={inputmode}
           value={value}
           maxLength={maxValueChar}

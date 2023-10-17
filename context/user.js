@@ -22,11 +22,11 @@ export const UserProvider = ({ children }) => {
   // Panel
   const [open, setOpen] = useState(false);
   const [selectedPanel, setSelectedPanel] = useState(1);
-  // Admin Panel
-  const [selectedTab, setSelectedTab] = useState(tabs[0]);
 
   // Subjects
   const [subjects, setSubjects] = useState([]);
+  const [loadingSubjects, setLoadingSubjects] = useState(true);
+
   // Feedbacks
   const [feedbacks, setFeedbacks] = useState([]);
 
@@ -55,9 +55,10 @@ export const UserProvider = ({ children }) => {
       // Panel
       setOpen(false);
       setSelectedPanel(1);
-      // Admin Panel
-      setSelectedTab(tabs[0]);
 
+      // Subjects
+      setSubjects([]);
+      setLoadingSubjects(true);
       // Feedbacks
       setFeedbacks([]);
 
@@ -69,7 +70,7 @@ export const UserProvider = ({ children }) => {
 
     const { data, error } = await supabase
       .from('profiles')
-      .select('id, firstname, lastname')
+      .select('id, firstname, lastname, studentNumber')
       .eq('id', user.id);
     if (data && data.length > 0) {
       setProfile(data[0]);
@@ -104,7 +105,7 @@ export const UserProvider = ({ children }) => {
     } else if (error) {
       console.log("🚀 ~ file: user.js:80 ~ getProducts ~ error:", error);
     }
-    setLoadingProducts(false);
+    setLoadingSubjects(false);
   }
 
   async function getFeedbacks() {
@@ -129,7 +130,7 @@ export const UserProvider = ({ children }) => {
 
   useEffect(() => {
     if (profile) {
-      if (profile.firstname && profile.lastname) {
+      if (profile.firstname && profile.lastname && profile.studentNumber) {
         setHasFinished(true);
       } else {
         setHasFinished(false);
@@ -137,7 +138,8 @@ export const UserProvider = ({ children }) => {
     }
 
     if (profile && !isAdmin) {
-      getFeedbacks();
+      getSubjects();
+
     } else if (profile && isAdmin) {
       getAllFeedbacks();
     }
@@ -158,7 +160,7 @@ export const UserProvider = ({ children }) => {
   }, [profile, loadingProfile, hasFinished]);
 
   function openSignInPanel() {
-    setSelectedPanel(2);
+    setSelectedPanel(1);
     setOpen(true);
   }
 
@@ -181,9 +183,11 @@ export const UserProvider = ({ children }) => {
     selectedPanel,
     setSelectedPanel,
     openSignInPanel,
-    // Admin Panel
-    selectedTab,
-    setSelectedTab,
+
+    // Subjects
+    subjects,
+    loadingSubjects,
+
 
   };
 

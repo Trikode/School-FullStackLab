@@ -107,6 +107,7 @@ const AccountPreview = () => {
 
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
+  const [studentNumber, setStudentNumber] = useState('');
 
   const [isEditing, setIsEditing] = useState(false);
 
@@ -114,8 +115,8 @@ const AccountPreview = () => {
 
   useEffect(() => {
     if (profile) {
-      if (firstName.trim() && lastName.trim()) {
-        if (firstName !== profile.firstname || lastName !== profile.lastname) {
+      if (firstName.trim() && lastName.trim() && studentNumber.trim()) {
+        if (firstName !== profile.firstname || lastName !== profile.lastname || studentNumber !== profile.studentNumber) {
           setIsValid(true);
         } else {
           setIsValid(false);
@@ -124,13 +125,13 @@ const AccountPreview = () => {
         setIsValid(false);
       }
     } else {
-      if (firstName.trim() && lastName.trim()) {
+      if (firstName.trim() && lastName.trim() && studentNumber.trim()) {
         setIsValid(true);
       } else {
         setIsValid(false);
       }
     }
-  }, [firstName, lastName]);
+  }, [firstName, lastName, studentNumber]);
 
   async function updateProfile() {
     const { error } = await supabase
@@ -138,6 +139,7 @@ const AccountPreview = () => {
       .update({
         firstname: firstName,
         lastname: lastName,
+        studentNumber: studentNumber,
       })
       .eq('id', profile.id);
     if (error) {
@@ -146,6 +148,7 @@ const AccountPreview = () => {
       await getProfileFromSupabase();
       setFirstName('');
       setLastName('');
+      setStudentNumber('');
       if (isEditing === true) {
         setIsEditing(false);
       }
@@ -204,9 +207,19 @@ const AccountPreview = () => {
                     {!isEditing && (
                       <div
                         className="Flex Column StartLeft"
-                        style={{ gap: '0.25rem' }}>
-                        <p className="Mid SecondaryText">Name</p>
-                        <p className="Mid">{profile.firstname}&nbsp;{profile.lastname}</p>
+                        style={{ gap: '1.25rem' }}>
+                        <div
+                          className="Flex Column StartLeft"
+                          style={{ gap: '0.25rem' }}>
+                          <p className="Mid SecondaryText">Name</p>
+                          <p className="Mid">{profile.firstname}&nbsp;{profile.lastname}</p>
+                        </div>
+                        <div
+                          className="Flex Column StartLeft"
+                          style={{ gap: '0.25rem' }}>
+                          <p className="Mid SecondaryText">Student Number</p>
+                          <p className="Mid">{profile.studentNumber}</p>
+                        </div>
                       </div>
                     )}
                     {isEditing && (
@@ -227,6 +240,13 @@ const AccountPreview = () => {
                             value={lastName}
                             placeholder={profile && profile.lastname}
                             onChange={(e) => setLastName(e.target.value)}
+                          />
+                          <InputLabel
+                            label="Student Number"
+                            value={studentNumber}
+                            type="number"
+                            placeholder={profile && profile.studentNumber}
+                            onChange={(e) => setStudentNumber(e.target.value)}
                           />
                         </div>
                         <Button
@@ -262,6 +282,7 @@ const AccountPreview = () => {
             </>
           ) : (
             <>
+              <p className="Big">Please fill</p>
               <div
                 className="Flex Column StartLeft"
                 style={{ gap: '1.25rem' }}>
@@ -276,6 +297,12 @@ const AccountPreview = () => {
                   value={lastName}
                   placeholder=""
                   onChange={(e) => setLastName(e.target.value)}
+                />
+                <InputLabel
+                  label="Student Number"
+                  value={studentNumber}
+                  placeholder=""
+                  onChange={(e) => setStudentNumber(e.target.value)}
                 />
               </div>
               <Button
