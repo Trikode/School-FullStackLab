@@ -27,6 +27,14 @@ export const UserProvider = ({ children }) => {
   const [subjects, setSubjects] = useState([]);
   const [loadingSubjects, setLoadingSubjects] = useState(true);
 
+  // Marks
+  const [marks, setMarks] = useState([]);
+  const [loadingMarks, setLoadingMarks] = useState(true);
+
+  // Combined subjects and marks
+  const [combined, setCombined] = useState([]);
+  const [loadingCombined, setLoadingCombined] = useState(true);
+
   // Feedbacks
   const [feedbacks, setFeedbacks] = useState([]);
 
@@ -59,6 +67,14 @@ export const UserProvider = ({ children }) => {
       // Subjects
       setSubjects([]);
       setLoadingSubjects(true);
+      // Marks
+      setMarks([]);
+      setLoadingMarks(true);
+
+      // Combined subjects and marks
+      setCombined([]);
+
+
       // Feedbacks
       setFeedbacks([]);
 
@@ -90,7 +106,7 @@ export const UserProvider = ({ children }) => {
     if (data && data.length > 0) {
       setIsAdmin(true);
     } else if (error) {
-      console.log("🚀 ~ file: user.js:79 ~ getIsAdmin ~ error:", error);
+      console.log("🚀 ~ file: user.js:97 ~ getIsAdmin ~ error:", error);
     } else {
       setIsAdmin(false);
     }
@@ -103,10 +119,50 @@ export const UserProvider = ({ children }) => {
     if (data) {
       setSubjects(data);
     } else if (error) {
-      console.log("🚀 ~ file: user.js:80 ~ getProducts ~ error:", error);
+      console.log("🚀 ~ file: user.js:110 ~ getSubjects ~ error:", error);
     }
     setLoadingSubjects(false);
   }
+
+  async function getMarks() {
+    const { data, error } = await supabase
+      .from('school-marks')
+      .select('id, subject: school-subjects(id, subjectName), mark')
+      .eq('studentNumber', profile.studentNumber);
+    if (data) {
+      setMarks(data);
+    } else if (error) {
+      console.log("🚀 ~ file: user.js:123 ~ getMarks ~ error:", error);
+    }
+    setLoadingMarks(false);
+  }
+
+  useEffect(() => {
+    // Combine subjects and marks
+    // Structures are:
+    // subjects = [{id, subjectName}, ...]
+    // marks = [{id, subject: {id, subjectName}, mark}, ...]
+
+    if (loadingSubjects || loadingMarks) return;
+
+    const combined = subjects.map((subject) => {
+      const mark = marks.find((mark) => mark.subject.id === subject.id);
+      return {
+        ...subject,
+        mark: mark ? mark.mark : null,
+      };
+    });
+
+    setCombined(combined);
+
+  }, [subjects, marks]);
+
+  useEffect(() => {
+    if (combined && combined.length > 0) {
+      console.log(combined);
+      setLoadingCombined(false);
+    }
+  }, [combined]);
 
   async function getFeedbacks() {
 
@@ -139,7 +195,7 @@ export const UserProvider = ({ children }) => {
 
     if (profile && !isAdmin) {
       getSubjects();
-
+      getMarks();
     } else if (profile && isAdmin) {
       getAllFeedbacks();
     }
@@ -184,9 +240,9 @@ export const UserProvider = ({ children }) => {
     setSelectedPanel,
     openSignInPanel,
 
-    // Subjects
-    subjects,
-    loadingSubjects,
+    // Combined subjects and marks
+    combined,
+    loadingCombined,
 
 
   };
