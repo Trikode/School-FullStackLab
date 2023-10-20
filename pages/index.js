@@ -3,10 +3,6 @@ import Layout from '../layout/Layout';
 
 import { useProfile } from '../context/user';
 
-import { AnimatePresence, motion } from 'framer-motion';
-
-import { styleUnderline } from '../style/styles';
-
 export default function Home() {
 
   const tabs = ['Marks', 'Feedbacks'];
@@ -25,49 +21,16 @@ export default function Home() {
           borderRadius: '0.5rem',
         }}>
         <nav
-          className="Full Flex Center"
+          className="Full Flex LeftCenter"
           style={{
             height: '3.8rem',
             background: 'var(--bgGrey)',
             borderRadius: '0.5rem 0.5rem 0 0',
             padding: '0 2rem',
           }}>
-          <ul className="Full Flex StartLeft" style={{ gap: '2.5rem' }}>
-            {tabs.map((tab, index) => {
-              return (
-                <li
-                  key={index}
-                  className={tab === selectedTab ? '' : 'SecondaryText'}
-                  onClick={() => setSelectedTab(tab)}
-                  style={{
-                    position: 'relative',
-                    cursor: 'pointer',
-                  }}>
-                  <p className="Mid">{tab}</p>
-                  {tab === selectedTab ? (
-                    <motion.div className="underline" style={styleUnderline} layoutId="underline" />
-                  ) : null}
-                </li>
-              );
-            })}
-          </ul>
+          <p className="Mid">Dashboard</p>
         </nav>
-        <AnimatePresence mode="wait">
-          <motion.div
-            className="Full Flex StartLeft"
-            key={selectedTab ? selectedTab : 'empty'}
-            initial={{ x: -5, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            exit={{ x: -5, opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            style={{
-              position: 'relative',
-              minHeight: '30rem',
-              padding: '2rem',
-            }}>
-            {selectedTab === tabs[0] && <MarksTab />}
-          </motion.div>
-        </AnimatePresence>
+        <MarksTab />
       </div>
     </div>
   );
@@ -81,11 +44,21 @@ function MarksTab() {
   } = useProfile();
 
   return (
-    <div className='Full Flex StartLeft'>
+    <div
+      className='Full Flex StartLeft'
+      style={{
+        minHeight: '30rem',
+        padding: '2rem',
+      }}>
       <div
         className='Full Flex Column StartLeft'
-        style={{ gap: '1rem' }}>
-        <p className='Mid Bold'>Subject</p>
+        style={{ gap: '2rem' }}>
+        <div className='Full Flex StartLeft'>
+          <StyledLabel>Subject</StyledLabel>
+          <StyledLabel>Mark</StyledLabel>
+          <StyledLabel>Feedback</StyledLabel>
+          <StyledLabel>Comment</StyledLabel>
+        </div>
         {loadingCombined ? (
           <></>
         ) : (
@@ -94,13 +67,49 @@ function MarksTab() {
               key={index}
               className='Full Flex StartLeft'
               style={{
-                gap: '1rem',
+                paddingTop: '2rem',
+                borderTop: '1px solid rgba(0, 0, 0, 0.01)',
               }}>
-              <p className='Mid'>{item.subjectName}</p>
-              <p className='Mid SecondaryText'>{item.mark || 'No mark'}</p>
+              <p className='Mid' style={styleItem}>{item.subjectName}</p>
+              <p className={item.mark ? 'Mid' : 'Mid SecondaryText'} style={styleItem}>{item.mark ? `${item.mark} / 20` : 'No mark'}</p>
+              <FeedbackPoints points={item.feedback ? item.feedback.points : null} />
             </div>
           )))}
       </div>
+    </div>
+  );
+}
+
+const StyledLabel = ({ children }) => (
+  <p className='Mid Bold' style={styleItem}>{children}</p>
+);
+
+const styleItem = {
+  width: '16rem',
+  textAlign: 'left',
+};
+
+function FeedbackPoints({ points }) {
+  return (
+    <div
+      className='Full Flex LeftCenter'
+      style={{
+        ...styleItem,
+        gap: '0.5rem',
+      }}>
+      {[...Array(5)].map((_, index) => (
+        <div
+          className='Pointer'
+          key={index}
+          style={{
+            width: '1rem',
+            height: '1rem',
+            borderRadius: '50%',
+            backgroundColor: points > index ? 'var(--borderBlack)' : 'var(--bgGrey)',
+            marginRight: '0.5rem',
+          }}
+        />
+      ))}
     </div>
   );
 }

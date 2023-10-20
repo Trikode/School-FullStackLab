@@ -1,8 +1,9 @@
+import { useRouter } from 'next/router';
 import { createContext, useContext, useEffect, useState } from 'react';
 
 import { useSupabaseClient, useUser } from '@supabase/auth-helpers-react';
 
-import { tabs } from '../pages/admin';
+import { get } from 'http';
 
 const ProviderContext = createContext();
 export const useProfile = () => useContext(ProviderContext);
@@ -11,6 +12,8 @@ export const UserProvider = ({ children }) => {
 
   const supabase = useSupabaseClient();
   const user = useUser();
+
+  const router = useRouter();
 
   // Profile
   const [profile, setProfile] = useState(null);
@@ -31,12 +34,13 @@ export const UserProvider = ({ children }) => {
   const [marks, setMarks] = useState([]);
   const [loadingMarks, setLoadingMarks] = useState(true);
 
-  // Combined subjects and marks
-  const [combined, setCombined] = useState([]);
-  const [loadingCombined, setLoadingCombined] = useState(true);
-
   // Feedbacks
   const [feedbacks, setFeedbacks] = useState([]);
+  const [loadingFeedbacks, setLoadingFeedbacks] = useState(true);
+
+  // Combined subjects, marks and feedbacks
+  const [combined, setCombined] = useState([]);
+  const [loadingCombined, setLoadingCombined] = useState(true);
 
   useEffect(() => {
     if (user) {
@@ -70,13 +74,12 @@ export const UserProvider = ({ children }) => {
       // Marks
       setMarks([]);
       setLoadingMarks(true);
+      // Feedbacks
+      setFeedbacks([]);
+      setLoadingFeedbacks(true);
 
       // Combined subjects and marks
       setCombined([]);
-
-
-      // Feedbacks
-      setFeedbacks([]);
 
     };
   }, [user]);
@@ -127,7 +130,7 @@ export const UserProvider = ({ children }) => {
   async function getMarks() {
     const { data, error } = await supabase
       .from('school-marks')
-      .select('id, subject: school-subjects(id, subjectName), mark')
+      .select('id, idSubject, mark')
       .eq('studentNumber', profile.studentNumber);
     if (data) {
       setMarks(data);
@@ -137,25 +140,44 @@ export const UserProvider = ({ children }) => {
     setLoadingMarks(false);
   }
 
+  async function getFeedbacks() {
+    const { data, error } = await supabase
+      .from('school-feedbacks')
+      .select('id, idSubject, feedbackPoints, feedbackNote')
+      .eq('profile', profile.id);
+    if (data) {
+      setFeedbacks(data);
+    } else if (error) {
+      console.log("🚀 ~ file: user.js:148 ~ getFeedbacks ~ error:", error);
+    }
+    setLoadingFeedbacks(false);
+  }
+
   useEffect(() => {
-    // Combine subjects and marks
+    // Combine subjects, marks and feedbacks
     // Structures are:
     // subjects = [{id, subjectName}, ...]
-    // marks = [{id, subject: {id, subjectName}, mark}, ...]
+    // marks = [{id, idSubject, mark}, ...]
+    // feedbacks = [{id, idSubject, feedbackPoints, feedbackNote}, ...]
 
-    if (loadingSubjects || loadingMarks) return;
+    if (loadingSubjects || loadingMarks || loadingFeedbacks) return;
 
     const combined = subjects.map((subject) => {
-      const mark = marks.find((mark) => mark.subject.id === subject.id);
+      const mark = marks.find((mark) => mark.idSubject === subject.id);
+      const feedback = feedbacks.find((feedback) => feedback.idSubject === subject.id);
       return {
         ...subject,
         mark: mark ? mark.mark : null,
+        feedback: feedback ? {
+          points: feedback.feedbackPoints || null,
+          note: feedback.feedbackNote || null,
+        } : null,
       };
     });
 
     setCombined(combined);
 
-  }, [subjects, marks]);
+  }, [subjects, marks, feedbacks, loadingSubjects, loadingMarks, loadingFeedbacks]);
 
   useEffect(() => {
     if (combined && combined.length > 0) {
@@ -164,10 +186,8 @@ export const UserProvider = ({ children }) => {
     }
   }, [combined]);
 
-  async function getFeedbacks() {
 
-  }
-
+  // Admin
   async function getAllFeedbacks() {
 
   }
@@ -181,7 +201,7 @@ export const UserProvider = ({ children }) => {
 
   const signOut = async () => {
     await supabase.auth.signOut();
-    setProfile(null);
+    router.push('/');
   };
 
   useEffect(() => {
@@ -196,6 +216,7 @@ export const UserProvider = ({ children }) => {
     if (profile && !isAdmin) {
       getSubjects();
       getMarks();
+      getFeedbacks();
     } else if (profile && isAdmin) {
       getAllFeedbacks();
     }
