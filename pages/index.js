@@ -1,13 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Layout from '../layout/Layout';
 
+import { useSupabaseClient } from '@supabase/auth-helpers-react';
 import { useProfile } from '../context/user';
 
 export default function Home() {
-
-  const tabs = ['Marks', 'Feedbacks'];
-  const [selectedTab, setSelectedTab] = useState(tabs[0]);
-
   return (
     <div
       className="Full Column Flex Center"
@@ -72,7 +69,13 @@ function MarksTab() {
               }}>
               <p className='Mid' style={styleItem}>{item.subjectName}</p>
               <p className={item.mark ? 'Mid' : 'Mid SecondaryText'} style={styleItem}>{item.mark ? `${item.mark} / 20` : 'No mark'}</p>
-              <FeedbackPoints points={item.feedback ? item.feedback.points : null} />
+              {item.mark && (
+                <FeedbackPoints
+                  idFeedback={item.feedback ? item.feedback.id : null}
+                  idSubject={item.id}
+                  points={item.feedback ? item.feedback.points : null}
+                />
+              )}
             </div>
           )))}
       </div>
@@ -89,7 +92,51 @@ const styleItem = {
   textAlign: 'left',
 };
 
-function FeedbackPoints({ points }) {
+function FeedbackPoints({ idFeedback, idSubject, points }) {
+
+  const supabase = useSupabaseClient();
+  const {
+    profile,
+    getFeedbacks,
+  } = useProfile();
+
+  async function insertFeedbackPoints(feedbackPoints) {
+    const { data, error } = await supabase
+      .from('school-feedbacks')
+      .insert({
+        idSubject: idSubject,
+        feedbackPoints: feedbackPoints,
+        profile: profile.id,
+      });
+    if (error) {
+      console.log("🚀 ~ file: index.js:109 ~ insertFeedback ~ error:", error);
+    } else {
+      getFeedbacks();
+    }
+  }
+
+  async function updateFeedbackPoints(feedbackPoints) {
+    const { data, error } = await supabase
+      .from('school-feedbacks')
+      .update({
+        feedbackPoints: feedbackPoints,
+      })
+      .eq('id', idFeedback);
+    if (error) {
+      console.log("🚀 ~ file: index.js:125 ~ updateFeedback ~ error:", error);
+    } else {
+      getFeedbacks();
+    }
+  }
+
+  const handleClick = async (feedbackPoints) => {
+    if (idFeedback) {
+      await updateFeedbackPoints(feedbackPoints);
+    } else {
+      await insertFeedbackPoints(feedbackPoints);
+    }
+  };
+
   return (
     <div
       className='Full Flex LeftCenter'
@@ -101,6 +148,7 @@ function FeedbackPoints({ points }) {
         <div
           className='Pointer'
           key={index}
+          onClick={() => handleClick(index + 1)}
           style={{
             width: '1rem',
             height: '1rem',

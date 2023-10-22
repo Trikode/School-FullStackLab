@@ -3,8 +3,6 @@ import { createContext, useContext, useEffect, useState } from 'react';
 
 import { useSupabaseClient, useUser } from '@supabase/auth-helpers-react';
 
-import { get } from 'http';
-
 const ProviderContext = createContext();
 export const useProfile = () => useContext(ProviderContext);
 
@@ -169,6 +167,7 @@ export const UserProvider = ({ children }) => {
         ...subject,
         mark: mark ? mark.mark : null,
         feedback: feedback ? {
+          id: feedback.id,
           points: feedback.feedbackPoints || null,
           note: feedback.feedbackNote || null,
         } : null,
@@ -181,7 +180,7 @@ export const UserProvider = ({ children }) => {
 
   useEffect(() => {
     if (combined && combined.length > 0) {
-      console.log(combined);
+      // console.log('combined', combined);
       setLoadingCombined(false);
     }
   }, [combined]);
@@ -265,6 +264,8 @@ export const UserProvider = ({ children }) => {
     combined,
     loadingCombined,
 
+    // Need to call getFeedbacks() after inserting or updating a feedback
+    getFeedbacks,
 
   };
 
