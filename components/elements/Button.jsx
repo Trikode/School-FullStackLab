@@ -159,3 +159,38 @@ export function ButtonRouterBack({
     </div>
   );
 }
+
+export function ButtonClose({ onClick }) {
+  return (
+    <button
+      className="Flex Center"
+      onClick={onClick}>
+      <img
+        src="/X.svg"
+        style={{
+          width: '2rem',
+          height: '2rem'
+        }}
+      />
+    </button>
+  );
+}
+
+const dotStyle = {
+  width: '0.15rem',
+  height: '0.15rem',
+  borderRadius: '50%',
+  backgroundColor: 'var(--bgGreyDarker)',
+};
+
+const ThreeDotsIcon = () => {
+  return (
+    <div
+      className='Flex Column Center'
+      style={{ gap: '0.2rem' }}>
+      <div style={dotStyle} />
+      <div style={dotStyle} />
+      <div style={dotStyle} />
+    </div>
+  );
+};

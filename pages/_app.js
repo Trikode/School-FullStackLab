@@ -1,5 +1,6 @@
 import Head from 'next/head';
 import { useState } from 'react';
+import { Toaster } from 'react-hot-toast';
 
 // Supabase
 import { createBrowserSupabaseClient } from '@supabase/auth-helpers-nextjs';
@@ -10,6 +11,34 @@ import '../style/global.css';
 import '../style/main.css';
 import '../style/reset.css';
 import '../style/components/styleFooter.css';
+// Chakra UI
+import { ChakraProvider, extendTheme } from '@chakra-ui/react';
+
+const toastStyle = {
+  background: 'white',
+  borderRadius: '0.8rem',
+  boxShadow: '0px 1px 4px rgba(0, 0, 0, 0.05)',
+};
+
+const theme = extendTheme({
+  styles: {
+    global: {
+      body: {
+        margin: 0,
+        padding: 0,
+        boxSizing: 'border-box',
+        fontFamily: 'var(--font)',
+        lineHeight: '1',
+        color: 'unset',
+        background: 'unset',
+        backgroundColor: 'unset',
+      },
+      img: {
+        height: 'inherit',
+      },
+    },
+  },
+});
 
 export default function MyApp({ Component, pageProps }) {
 
@@ -39,7 +68,10 @@ export default function MyApp({ Component, pageProps }) {
         supabaseClient={supabaseClient}
         initialSession={pageProps.initialSession}>
         <UserProvider>
-          {getLayout(<Component {...pageProps} />)}
+          <Toaster toastOptions={{ style: toastStyle }} />
+          <ChakraProvider theme={theme}>
+            {getLayout(<Component {...pageProps} />)}
+          </ChakraProvider>
         </UserProvider>
       </SessionContextProvider>
     </>

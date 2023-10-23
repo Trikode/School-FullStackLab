@@ -231,22 +231,28 @@ const AccountPreview = () => {
                           style={{ gap: '1.25rem' }}>
                           <InputLabel
                             label="First Name"
+                            widthValue="15rem"
                             value={firstName}
                             placeholder={profile && profile.firstname}
                             onChange={(e) => setFirstName(e.target.value)}
+                            clearFunction={() => setFirstName('')}
                           />
                           <InputLabel
                             label="Last Name"
+                            widthValue="15rem"
                             value={lastName}
                             placeholder={profile && profile.lastname}
                             onChange={(e) => setLastName(e.target.value)}
+                            clearFunction={() => setLastName('')}
                           />
                           <InputLabel
                             label="Student Number"
+                            widthValue="15rem"
                             value={studentNumber}
                             type="number"
                             placeholder={profile && profile.studentNumber}
                             onChange={(e) => setStudentNumber(e.target.value)}
+                            clearFunction={() => setStudentNumber('')}
                           />
                         </div>
                         <Button

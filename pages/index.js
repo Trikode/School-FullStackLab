@@ -1,8 +1,19 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Layout from '../layout/Layout';
+import { TransitionElement } from '../layout/TransitionElement';
 
 import { useSupabaseClient } from '@supabase/auth-helpers-react';
 import { useProfile } from '../context/user';
+
+import InputLabel from '../components/elements/InputLabel';
+import { ModalLayout, modalStyle } from '../style/styles';
+// Chakra UI Modal
+import {
+  Modal,
+  ModalContent,
+  ModalOverlay,
+  useDisclosure,
+} from '@chakra-ui/react';
 
 export default function Home() {
   return (
@@ -65,16 +76,24 @@ function MarksTab() {
               className='Full Flex StartLeft'
               style={{
                 paddingTop: '2rem',
-                borderTop: '1px solid rgba(0, 0, 0, 0.01)',
+                // borderTop: '1px solid rgba(0, 0, 0, 0.01)',
+                borderTop: '1px solid rgba(0, 0, 0, 0.03)',
               }}>
               <p className='Mid' style={styleItem}>{item.subjectName}</p>
               <p className={item.mark ? 'Mid' : 'Mid SecondaryText'} style={styleItem}>{item.mark ? `${item.mark} / 20` : 'No mark'}</p>
               {item.mark && (
-                <FeedbackPoints
-                  idFeedback={item.feedback ? item.feedback.id : null}
-                  idSubject={item.id}
-                  points={item.feedback ? item.feedback.points : null}
-                />
+                <>
+                  <FeedbackPoints
+                    idFeedback={item.feedback ? item.feedback.id : null}
+                    idSubject={item.id}
+                    points={item.feedback ? item.feedback.points : null}
+                  />
+                  <FeedbackNote
+                    idFeedback={item.feedback ? item.feedback.id : null}
+                    idSubject={item.id}
+                    note={item.feedback ? item.feedback.note : null}
+                  />
+                </>
               )}
             </div>
           )))}
@@ -100,8 +119,10 @@ function FeedbackPoints({ idFeedback, idSubject, points }) {
     getFeedbacks,
   } = useProfile();
 
+  const [disableButton, setDisableButton] = useState(false);
+
   async function insertFeedbackPoints(feedbackPoints) {
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from('school-feedbacks')
       .insert({
         idSubject: idSubject,
@@ -116,7 +137,7 @@ function FeedbackPoints({ idFeedback, idSubject, points }) {
   }
 
   async function updateFeedbackPoints(feedbackPoints) {
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from('school-feedbacks')
       .update({
         feedbackPoints: feedbackPoints,
@@ -130,11 +151,13 @@ function FeedbackPoints({ idFeedback, idSubject, points }) {
   }
 
   const handleClick = async (feedbackPoints) => {
+    setDisableButton(true);
     if (idFeedback) {
       await updateFeedbackPoints(feedbackPoints);
     } else {
       await insertFeedbackPoints(feedbackPoints);
     }
+    setDisableButton(false);
   };
 
   return (
@@ -143,22 +166,103 @@ function FeedbackPoints({ idFeedback, idSubject, points }) {
       style={{
         ...styleItem,
         gap: '0.5rem',
+        height: '1.5rem',
       }}>
       {[...Array(5)].map((_, index) => (
-        <div
+        <button
           className='Pointer'
           key={index}
+          disabled={disableButton}
           onClick={() => handleClick(index + 1)}
           style={{
             width: '1rem',
             height: '1rem',
             borderRadius: '50%',
-            backgroundColor: points > index ? 'var(--borderBlack)' : 'var(--bgGrey)',
+            backgroundColor: points > index ? 'var(--bgGreyDarker)' : 'var(--borderBlack)',
             marginRight: '0.5rem',
           }}
         />
       ))}
     </div>
+  );
+}
+
+function FeedbackNote({ idFeedback, idSubject, note }) {
+
+  const supabase = useSupabaseClient();
+  const {
+    profile,
+    getFeedbacks,
+  } = useProfile();
+
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
+  const [feedbackNote, setFeedbackNote] = useState(note || '');
+
+  const handleOnClose = () => {
+    onClose();
+    setFeedbackNote(note || '');
+  };
+
+  return (
+    <>
+      <div
+        className='Flex StartLeft'
+        style={{
+          gap: '5rem',
+        }}>
+        {note ?
+          <>
+            <p
+              className='Mid'
+              style={{ width: '28rem' }}>
+              {note}
+            </p>
+            <p
+              className='Mid SecondaryText onHover Pointer'
+              onClick={onOpen}>
+              Edit
+            </p>
+          </>
+          :
+          <p
+            className="Mid SecondaryText onHover Pointer"
+            onClick={onOpen}>
+            Add comment
+          </p>
+        }
+      </div>
+      <Modal isOpen={isOpen} onClose={handleOnClose}>
+        <ModalOverlay />
+        <ModalContent style={modalStyle}>
+          <ModalLayout
+            title={note ? 'Edit comment' : 'Add comment'}
+            onClose={handleOnClose}
+            gap='1.5rem'
+            paddingHeader='0rem'
+          >
+            <InputLabel
+              widthValue='100%'
+              value={feedbackNote}
+              isDescription={true}
+              placeholder='Insert your feedback here...'
+              onChange={(e) => {
+                setFeedbackNote(e.target.value);
+              }}
+            />
+            {feedbackNote && (
+              <TransitionElement>
+                <p
+                  className="Small SecondaryText onHover Pointer"
+                  onClick={() => setFeedbackNote('')}>
+                  Clear text
+                </p>
+              </TransitionElement>
+            )}
+          </ModalLayout>
+        </ModalContent>
+      </Modal>
+    </>
   );
 }
 
