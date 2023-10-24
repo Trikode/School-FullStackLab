@@ -79,10 +79,9 @@ export function ListSelection({
   );
 }
 
-const InputWithLabelStyle = {
+const InputContainerStyle = {
   width: '100%',
-  height: '3.5rem',
-  padding: '0 1rem',
+  padding: '0rem 1rem',
   borderRadius: '0.5rem',
   border: '1px solid var(--borderBlack)',
   backgroundColor: 'var(--bgGrey)',
@@ -92,12 +91,14 @@ const InputWithLabelStyle = {
 
 const InputStyle = {
   width: '100%',
-  height: '4.5rem',
   background: 'none',
   border: 'none',
   outline: 'none',
   caretColor: 'black'
 };
+
+const inputHeight = '3.5rem';
+const inputDescHeight = '5.5rem';
 
 export default function InputLabel({
   widthValue = '100%',
@@ -118,7 +119,7 @@ export default function InputLabel({
 }) {
   return (
     <div
-      className="Flex Column Small"
+      className="Flex Column Mid"
       style={{
         width: widthValue,
         alignItems: 'flex-start',
@@ -149,8 +150,8 @@ export default function InputLabel({
         <div
           className="Flex Center"
           style={{
-            ...InputWithLabelStyle,
-            height: descHeights[0],
+            ...InputContainerStyle,
+            padding: '1rem',
           }}>
           <textarea
             value={value}
@@ -164,20 +165,20 @@ export default function InputLabel({
             spellCheck="false"
             style={{
               ...InputStyle,
-              height: descHeights[1],
-              resize: 'none',
+              minHeight: inputDescHeight,
+              resize: 'vertical'
             }}
           />
         </div>
       ) : (
         <div
           className="Full Flex"
-          style={{ ...InputWithLabelStyle, width: fieldWidth }}>
+          style={{ ...InputContainerStyle, width: fieldWidth }}>
           {isUsername && (
             <div
               className="Flex Center SecondaryText"
               style={{
-                height: '4.5rem',
+                height: inputHeight,
               }}>
               <Asperand />
             </div>
@@ -195,7 +196,10 @@ export default function InputLabel({
               autoCorrect="off"
               autoCapitalize="off"
               spellCheck="false"
-              style={InputStyle}
+              style={{
+                ...InputStyle,
+                height: inputHeight,
+              }}
             />
             {clearFunction && value && (
               <ClearFilter onClick={clearFunction} />

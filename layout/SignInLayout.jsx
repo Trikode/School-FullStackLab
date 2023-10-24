@@ -1,5 +1,3 @@
-import { useRouter } from "next/router";
-
 import { useProfile } from "../context/user";
 
 import Button from "../components/elements/Button";
@@ -51,40 +49,5 @@ export function LoadingWaiting() {
       }}>
       <p className="Big SecondaryText">Loading...</p>
     </div>
-  );
-}
-
-export function AdminLayout({ children, text }) {
-
-  const router = useRouter();
-  const {
-    isSignedIn,
-    isAdmin,
-  } = useProfile();
-
-  if (isSignedIn === null || isAdmin === null) return (
-    <LoadingWaiting />
-  );
-
-  if (isSignedIn === false && isAdmin === false) return (
-    <div
-      className="Full Flex Column Center"
-      style={{
-        padding: '6rem 0 5rem',
-        gap: '2rem'
-      }}>
-      <div className="Flex Column Center" style={{ gap: '0.5rem' }}>
-        <p className="Subtitle Bold">Oops!</p>
-        <p className="Big">{text}</p>
-      </div>
-      <Button
-        text="Back to Home"
-        onClick={() => router.push('/')}
-      />
-    </div>
-  );
-
-  if (isSignedIn === true && isAdmin === true) return (
-    <> {children} </>
   );
 }

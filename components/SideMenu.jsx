@@ -7,7 +7,7 @@ import { useSupabaseClient } from "@supabase/auth-helpers-react";
 import { useProfile } from "../context/user";
 
 import 'react-modern-drawer/dist/index.css';
-import Button, { ButtonGreyWithIcon, ButtonSocialLogin, IconButton } from "./elements/Button";
+import Button, { ButtonGrey, ButtonSocialLogin, IconButton } from "./elements/Button";
 import InputLabel from "./elements/InputLabel";
 
 export default function SideMenu() {
@@ -115,7 +115,7 @@ const AccountPreview = () => {
 
   useEffect(() => {
     if (profile) {
-      if (firstName.trim() && lastName.trim() && studentNumber.trim()) {
+      if (firstName.trim() && lastName.trim() && studentNumber.trim() && studentNumber.length === 6) {
         if (firstName !== profile.firstname || lastName !== profile.lastname || studentNumber !== profile.studentNumber) {
           setIsValid(true);
         } else {
@@ -125,7 +125,7 @@ const AccountPreview = () => {
         setIsValid(false);
       }
     } else {
-      if (firstName.trim() && lastName.trim() && studentNumber.trim()) {
+      if (firstName.trim() && lastName.trim() && studentNumber.trim() && studentNumber.length === 6) {
         setIsValid(true);
       } else {
         setIsValid(false);
@@ -170,14 +170,6 @@ const AccountPreview = () => {
                 <p className="Big Bold">{profile.firstname}</p>
               </div>
               <div className="Full Flex StartLeft">
-                {isAdmin && (
-                  <Link href="/admin" target="_blank" className="Link">
-                    <ButtonGreyWithIcon
-                      text="Admin Dashboard"
-                      icon="/OpenFullPage.svg"
-                    />
-                  </Link>
-                )}
                 <div
                   className="Full"
                   style={{
@@ -225,7 +217,7 @@ const AccountPreview = () => {
                     {isEditing && (
                       <div
                         className="Flex Column StartLeft"
-                        style={{ gap: '2rem' }}>
+                        style={{ gap: '1.5rem' }}>
                         <div
                           className="Flex Column StartLeft"
                           style={{ gap: '1.25rem' }}>
@@ -255,7 +247,7 @@ const AccountPreview = () => {
                             clearFunction={() => setStudentNumber('')}
                           />
                         </div>
-                        <Button
+                        <ButtonGrey
                           text="Done"
                           onClick={updateProfile}
                           disabled={!isValid}

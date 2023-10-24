@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import Layout from '../layout/Layout';
+import { LoadingWaiting } from '../layout/SignInLayout';
 import { TransitionElement } from '../layout/TransitionElement';
 
 import { useSupabaseClient } from '@supabase/auth-helpers-react';
 import { useProfile } from '../context/user';
 
+import { ButtonGrey } from '../components/elements/Button';
 import InputLabel from '../components/elements/InputLabel';
 import { ModalLayout, modalStyle } from '../style/styles';
 // Chakra UI Modal
@@ -16,6 +18,12 @@ import {
 } from '@chakra-ui/react';
 
 export default function Home() {
+
+  const {
+    isAdmin,
+    loadingIsAdmin,
+  } = useProfile();
+
   return (
     <div
       className="Full Column Flex Center"
@@ -38,7 +46,9 @@ export default function Home() {
           }}>
           <p className="Mid">Dashboard</p>
         </nav>
-        <MarksTab />
+        {loadingIsAdmin && <LoadingWaiting />}
+        {loadingIsAdmin === false && isAdmin === false && <MarksTab />}
+        {loadingIsAdmin === false && isAdmin && <AdminTab />}
       </div>
     </div>
   );
@@ -67,9 +77,7 @@ function MarksTab() {
           <StyledLabel>Feedback</StyledLabel>
           <StyledLabel>Comment</StyledLabel>
         </div>
-        {loadingCombined ? (
-          <></>
-        ) : (
+        {loadingCombined === false && (
           combined.map((item, index) => (
             <div
               key={index}
@@ -204,6 +212,44 @@ function FeedbackNote({ idFeedback, idSubject, note }) {
     setFeedbackNote(note || '');
   };
 
+  async function insertFeedbackNote() {
+    const { error } = await supabase
+      .from('school-feedbacks')
+      .insert({
+        idSubject: idSubject,
+        feedbackNote: feedbackNote,
+        profile: profile.id,
+      });
+    if (error) {
+      console.log("🚀 ~ file: index.js:217 ~ insertFeedbackNote ~ error:", error);
+    } else {
+      getFeedbacks();
+    }
+  }
+
+  async function updateFeedbackNote() {
+    const { error } = await supabase
+      .from('school-feedbacks')
+      .update({
+        feedbackNote: feedbackNote,
+      })
+      .eq('id', idFeedback);
+    if (error) {
+      console.log("🚀 ~ file: index.js:231 ~ updateFeedbackNote ~ error:", error);
+    } else {
+      getFeedbacks();
+    }
+  }
+
+  const handleClick = async () => {
+    if (idFeedback) {
+      await updateFeedbackNote();
+    } else {
+      await insertFeedbackNote();
+    }
+    onClose();
+  };
+
   return (
     <>
       <div
@@ -250,21 +296,110 @@ function FeedbackNote({ idFeedback, idSubject, note }) {
                 setFeedbackNote(e.target.value);
               }}
             />
-            {feedbackNote && (
-              <TransitionElement>
-                <p
-                  className="Small SecondaryText onHover Pointer"
-                  onClick={() => setFeedbackNote('')}>
-                  Clear text
-                </p>
-              </TransitionElement>
-            )}
+            <div className={feedbackNote ? 'Full Flex SpaceBetCen' : 'Full Flex EndRight'}>
+              {feedbackNote && (
+                <TransitionElement>
+                  <p
+                    className="Mid SecondaryText onHover Pointer"
+                    onClick={() => setFeedbackNote('')}>
+                    Clear text
+                  </p>
+                </TransitionElement>
+              )}
+              <ButtonGrey
+                text='Save'
+                onClick={handleClick}
+              />
+            </div>
           </ModalLayout>
         </ModalContent>
       </Modal>
     </>
   );
 }
+
+function AdminTab() {
+
+  const {
+    combined,
+    loadingCombined,
+  } = useProfile();
+
+  return (
+    <div
+      className='Full Flex StartLeft'
+      style={{
+        minHeight: '30rem',
+        padding: '2rem',
+      }}>
+      <div
+        className='Full Flex Column StartLeft'
+        style={{ gap: '2rem' }}>
+        <div className='Full Flex StartLeft'>
+          <StyledLabel>Subject</StyledLabel>
+          <StyledLabel>Student</StyledLabel>
+          <StyledLabel>Feedback</StyledLabel>
+          <StyledLabel>Comment</StyledLabel>
+        </div>
+        {loadingCombined === false && (
+          combined.map((item, index) => (
+            <div
+              key={index}
+              className='Full Flex StartLeft'
+              style={{
+                paddingTop: '2rem',
+                // borderTop: '1px solid rgba(0, 0, 0, 0.01)',
+                borderTop: '1px solid rgba(0, 0, 0, 0.03)',
+              }}>
+              <p className='Mid' style={styleItem}>{item.subjectName}</p>
+              <div
+                className='Flex Column StartLeft'
+                style={{ gap: '2rem' }}>
+                {item.feedbacks && item.feedbacks.map((feedback, index) => (
+                  <div
+                    className='Flex StartLeft'
+                    key={index}
+                    style={index === 0 ? { paddingTop: '0' } : {
+                      paddingTop: '2rem',
+                      // borderTop: '1px solid rgba(0, 0, 0, 0.01)',
+                      borderTop: '1px solid rgba(0, 0, 0, 0.03)',
+                    }}>
+                    <p className="Mid" style={styleItem}>{feedback.profile.firstname}&nbsp;{feedback.profile.lastname}</p>
+                    {/* <ProfileData profile={feedback.profile} /> */}
+                    <div
+                      className='Full Flex LeftCenter'
+                      style={{
+                        ...styleItem,
+                        gap: '0.5rem',
+                        height: '1.5rem',
+                      }}>
+                      {[...Array(5)].map((_, index) => (
+                        <button
+                          key={index}
+                          style={{
+                            width: '1rem',
+                            height: '1rem',
+                            borderRadius: '50%',
+                            backgroundColor: feedback.points > index ? 'var(--bgGreyDarker)' : 'var(--borderBlack)',
+                            marginRight: '0.5rem',
+                          }}
+                        />
+                      ))}
+                    </div>
+                    <p className={feedback.note ? 'Mid' : 'Mid SecondaryText'} style={{ width: '28rem' }}>{feedback.note ? feedback.note : 'No comment'}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )))}
+      </div>
+    </div>
+  );
+}
+
+const ProfileData = ({ profile }) => (
+  <p className="Mid" style={styleItem}>{profile.firstname}&nbsp;{profile.lastname}&nbsp;{profile.studentNumber}</p>
+);
 
 Home.getLayout = function getLayout(page) {
   return <Layout>{page}</Layout>;

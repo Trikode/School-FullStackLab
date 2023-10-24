@@ -3,6 +3,8 @@ import { createContext, useContext, useEffect, useState } from 'react';
 
 import { useSupabaseClient, useUser } from '@supabase/auth-helpers-react';
 
+import { get } from 'http';
+
 const ProviderContext = createContext();
 export const useProfile = () => useContext(ProviderContext);
 
@@ -15,8 +17,11 @@ export const UserProvider = ({ children }) => {
 
   // Profile
   const [profile, setProfile] = useState(null);
-  const [isAdmin, setIsAdmin] = useState(null);
   const [loadingProfile, setLoadingProfile] = useState(true);
+
+  const [isAdmin, setIsAdmin] = useState(null);
+  const [loadingIsAdmin, setLoadingIsAdmin] = useState(true);
+
   const [hasFinished, setHasFinished] = useState(null);
   const [isSignedIn, setIsSignedIn] = useState(null);
 
@@ -35,6 +40,9 @@ export const UserProvider = ({ children }) => {
   // Feedbacks
   const [feedbacks, setFeedbacks] = useState([]);
   const [loadingFeedbacks, setLoadingFeedbacks] = useState(true);
+
+  const [adminFeedbacks, setAdminFeedbacks] = useState([]);
+  const [loadingAdminFeedbacks, setLoadingAdminFeedbacks] = useState(true);
 
   // Combined subjects, marks and feedbacks
   const [combined, setCombined] = useState([]);
@@ -58,10 +66,14 @@ export const UserProvider = ({ children }) => {
 
       // Profile
       setProfile(null);
-      setIsAdmin(null);
       setLoadingProfile(true);
+
+      setIsAdmin(null);
+      setLoadingIsAdmin(true);
+
       setHasFinished(null);
       setIsSignedIn(null);
+
       // Panel
       setOpen(false);
       setSelectedPanel(1);
@@ -76,9 +88,11 @@ export const UserProvider = ({ children }) => {
       setFeedbacks([]);
       setLoadingFeedbacks(true);
 
-      // Combined subjects and marks
-      setCombined([]);
+      setAdminFeedbacks([]);
+      setLoadingAdminFeedbacks(true);
 
+      setCombined([]);
+      setLoadingCombined(true);
     };
   }, [user]);
 
@@ -111,6 +125,7 @@ export const UserProvider = ({ children }) => {
     } else {
       setIsAdmin(false);
     }
+    setLoadingIsAdmin(false);
   }
 
   async function getSubjects() {
@@ -151,6 +166,19 @@ export const UserProvider = ({ children }) => {
     setLoadingFeedbacks(false);
   }
 
+  // Admin
+  async function getAdminFeedbacks() {
+    const { data, error } = await supabase
+      .from('school-feedbacks')
+      .select('id, idSubject, profile: profiles(firstname, lastname, studentNumber), feedbackPoints, feedbackNote');
+    if (data) {
+      setAdminFeedbacks(data);
+    } else if (error) {
+      console.log("🚀 ~ file: user.js:174 ~ getAdminFeedbacks ~ error:", error);
+    }
+    setLoadingAdminFeedbacks(false);
+  }
+
   useEffect(() => {
     // Combine subjects, marks and feedbacks
     // Structures are:
@@ -178,18 +206,43 @@ export const UserProvider = ({ children }) => {
 
   }, [subjects, marks, feedbacks, loadingSubjects, loadingMarks, loadingFeedbacks]);
 
+  // Admin
+  useEffect(() => {
+    // Combine subjects and feedbacks
+    // Structures are:
+    // subjects = [{id, subjectName}, ...]
+    // feedbacks = [{id, idSubject, profile: {firstname, lastname, studentNumber}, feedbackPoints, feedbackNote}, ...]
+
+    if (loadingSubjects || loadingAdminFeedbacks) return;
+
+    const combined = subjects.map((subject) => {
+      // Put array of feedbacks in each subject
+      const feedbacks = adminFeedbacks.filter((feedback) => feedback.idSubject === subject.id);
+      return {
+        ...subject,
+        feedbacks: feedbacks.map((feedback) => ({
+          id: feedback.id,
+          profile: {
+            firstname: feedback.profile.firstname,
+            lastname: feedback.profile.lastname,
+            studentNumber: feedback.profile.studentNumber,
+          },
+          points: feedback.feedbackPoints || null,
+          note: feedback.feedbackNote || null,
+        })),
+      };
+    });
+
+    setCombined(combined);
+
+  }, [subjects, adminFeedbacks, loadingSubjects, loadingAdminFeedbacks]);
+
   useEffect(() => {
     if (combined && combined.length > 0) {
       // console.log('combined', combined);
       setLoadingCombined(false);
     }
   }, [combined]);
-
-
-  // Admin
-  async function getAllFeedbacks() {
-
-  }
 
   const signInWithGoogle = async () => {
     await supabase.auth.signInWithOAuth({
@@ -204,8 +257,14 @@ export const UserProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    if (profile) {
+    if (profile && !isAdmin) {
       if (profile.firstname && profile.lastname && profile.studentNumber) {
+        setHasFinished(true);
+      } else {
+        setHasFinished(false);
+      }
+    } else if (profile && isAdmin) {
+      if (profile.firstname && profile.lastname) {
         setHasFinished(true);
       } else {
         setHasFinished(false);
@@ -217,7 +276,8 @@ export const UserProvider = ({ children }) => {
       getMarks();
       getFeedbacks();
     } else if (profile && isAdmin) {
-      getAllFeedbacks();
+      getSubjects();
+      getAdminFeedbacks();
     }
   }, [profile, isAdmin]);
 
@@ -247,8 +307,11 @@ export const UserProvider = ({ children }) => {
 
     // Profile
     profile,
-    isAdmin,
     loadingProfile,
+
+    isAdmin,
+    loadingIsAdmin,
+
     hasFinished,
     isSignedIn,
     getProfileFromSupabase,

@@ -5,13 +5,20 @@ export const iconSize = {
   height: '1.45rem',
 };
 
-export const commonStyle = {
+export const blackGradientButtonStyle = {
   background: 'var(--blackGradient)',
   padding: '1.2rem 2.2rem',
   color: 'white',
   border: 'none',
   borderRadius: '5rem',
   cursor: 'pointer',
+};
+
+export const greyButtonStyle = {
+  backgroundColor: 'var(--bgGrey)',
+  padding: '0.8rem 1.2rem',
+  border: '1px solid var(--borderBlack)',
+  borderRadius: '0.5rem',
 };
 
 export default function Button({
@@ -22,7 +29,7 @@ export default function Button({
   if (disabled) {
     return (
       <div
-        style={{ ...commonStyle, opacity: 0.2 }}>
+        style={{ ...blackGradientButtonStyle, opacity: 0.2 }}>
         <p className="Mid">{text}</p>
       </div>
     );
@@ -31,34 +38,31 @@ export default function Button({
     <motion.button
       whileHover={{ scale: 1.035 }}
       onClick={onClick}
-      style={commonStyle}>
+      style={blackGradientButtonStyle}>
       <p className="Mid">{text}</p>
     </motion.button>
   );
 }
 
-export function ButtonGreyWithIcon({
+export function ButtonGrey({
   text = '',
-  icon,
   onClick = () => { },
+  disabled = false,
 }) {
+  if (disabled) {
+    return (
+      <div
+        style={{ ...greyButtonStyle, opacity: 0.2 }}>
+        <p className="Mid">{text}</p>
+      </div>
+    );
+  }
   return (
     <button
-      className="Flex Center"
+      className="Flex Center Pointer"
       onClick={onClick}
-      style={{
-        height: '4rem',
-        padding: '0 1.2rem',
-        gap: '0.5rem',
-        border: 'none',
-        borderRadius: '3rem',
-        backgroundColor: 'var(--bgGrey)',
-        cursor: 'pointer',
-      }}>
+      style={greyButtonStyle}>
       <p className="Mid">{text}</p>
-      <img
-        src={icon}
-        style={iconSize} />
     </button>
   );
 }
