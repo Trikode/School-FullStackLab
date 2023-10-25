@@ -48,6 +48,8 @@ export const UserProvider = ({ children }) => {
   const [combined, setCombined] = useState([]);
   const [loadingCombined, setLoadingCombined] = useState(true);
 
+  const [selectedAdminTab, setSelectedAdminTab] = useState('');
+
   useEffect(() => {
     if (user) {
       getProfileFromSupabase();
@@ -93,6 +95,9 @@ export const UserProvider = ({ children }) => {
 
       setCombined([]);
       setLoadingCombined(true);
+
+      setSelectedAdminTab('');
+
     };
   }, [user]);
 
@@ -215,12 +220,14 @@ export const UserProvider = ({ children }) => {
 
     if (loadingSubjects || loadingAdminFeedbacks) return;
 
+    setSelectedAdminTab(subjects[0].subjectName);
+
     const combined = subjects.map((subject) => {
       // Put array of feedbacks in each subject
       const feedbacks = adminFeedbacks.filter((feedback) => feedback.idSubject === subject.id);
       return {
         ...subject,
-        feedbacks: feedbacks.map((feedback) => ({
+        feedbacks: feedbacks && feedbacks.length > 0 ? feedbacks.map((feedback) => ({
           id: feedback.id,
           profile: {
             firstname: feedback.profile.firstname,
@@ -229,7 +236,7 @@ export const UserProvider = ({ children }) => {
           },
           points: feedback.feedbackPoints || null,
           note: feedback.feedbackNote || null,
-        })),
+        })) : null,
       };
     });
 
@@ -239,7 +246,6 @@ export const UserProvider = ({ children }) => {
 
   useEffect(() => {
     if (combined && combined.length > 0) {
-      // console.log('combined', combined);
       setLoadingCombined(false);
     }
   }, [combined]);
@@ -257,7 +263,7 @@ export const UserProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    if (profile && !isAdmin) {
+    if (profile && isAdmin === false) {
       if (profile.firstname && profile.lastname && profile.studentNumber) {
         setHasFinished(true);
       } else {
@@ -271,7 +277,7 @@ export const UserProvider = ({ children }) => {
       }
     }
 
-    if (profile && !isAdmin) {
+    if (profile && isAdmin === false) {
       getSubjects();
       getMarks();
       getFeedbacks();
@@ -323,12 +329,20 @@ export const UserProvider = ({ children }) => {
     setSelectedPanel,
     openSignInPanel,
 
+    // Subjects
+    subjects,
+    loadingSubjects,
+
     // Combined subjects and marks
     combined,
     loadingCombined,
 
     // Need to call getFeedbacks() after inserting or updating a feedback
     getFeedbacks,
+
+    // Admin
+    selectedAdminTab,
+    setSelectedAdminTab,
 
   };
 

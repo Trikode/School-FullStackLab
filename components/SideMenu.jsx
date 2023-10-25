@@ -28,7 +28,7 @@ export default function SideMenu() {
       setSelectedPanel(1);
       setOpen(true);
     }
-  }, [hasFinished]);
+  }, [hasFinished, open]);
 
   useEffect(() => {
     const handleRouteChange = () => {

@@ -28,6 +28,8 @@ main {
   --fontSegoe: "Segoe UI", Arial, sans-serif;
 
   --borderBlack: rgb(0, 0, 0, 0.09);
+  --lighterBorderBlack: rgb(0, 0, 0, 0.03);
+  /* 0.01 */
 
   --blackGradient: linear-gradient(80deg, #0e0e0e 0%, #2e2e2e 100%);
   /* Button bg */

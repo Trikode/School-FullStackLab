@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Layout from '../layout/Layout';
 import { LoadingWaiting } from '../layout/SignInLayout';
 import { TransitionElement } from '../layout/TransitionElement';
@@ -6,9 +6,11 @@ import { TransitionElement } from '../layout/TransitionElement';
 import { useSupabaseClient } from '@supabase/auth-helpers-react';
 import { useProfile } from '../context/user';
 
+import { motion } from 'framer-motion';
+
 import { ButtonGrey } from '../components/elements/Button';
 import InputLabel from '../components/elements/InputLabel';
-import { ModalLayout, modalStyle } from '../style/styles';
+import { ModalLayout, modalStyle, styleUnderline } from '../style/styles';
 // Chakra UI Modal
 import {
   Modal,
@@ -44,7 +46,8 @@ export default function Home() {
             borderRadius: '0.5rem 0.5rem 0 0',
             padding: '0 2rem',
           }}>
-          <p className="Mid">Dashboard</p>
+          {loadingIsAdmin === false && isAdmin === false && <p className="Mid">Dashboard</p>}
+          {loadingIsAdmin === false && isAdmin && <AdminTabs />}
         </nav>
         {loadingIsAdmin && <LoadingWaiting />}
         {loadingIsAdmin === false && isAdmin === false && <MarksTab />}
@@ -84,8 +87,7 @@ function MarksTab() {
               className='Full Flex StartLeft'
               style={{
                 paddingTop: '2rem',
-                // borderTop: '1px solid rgba(0, 0, 0, 0.01)',
-                borderTop: '1px solid rgba(0, 0, 0, 0.03)',
+                borderTop: '1px solid var(--lighterBorderBlack)',
               }}>
               <p className='Mid' style={styleItem}>{item.subjectName}</p>
               <p className={item.mark ? 'Mid' : 'Mid SecondaryText'} style={styleItem}>{item.mark ? `${item.mark} / 20` : 'No mark'}</p>
@@ -323,82 +325,190 @@ function AdminTab() {
   const {
     combined,
     loadingCombined,
+    selectedAdminTab,
   } = useProfile();
+
+  const [combinedFiltered, setcombinedFiltered] = useState([]);
+  const [feedbacksResults, setFeedbacksResults] = useState({
+    totalFeedbacks: 0,
+    averageFeedbackPoints: 0,
+  });
+
+  // Filter combined by selectedAdminTab
+  useEffect(() => {
+    if (loadingCombined) return;
+    const filtered = combined.filter((item) => item.subjectName === selectedAdminTab);
+    setcombinedFiltered(filtered);
+
+  }, [combined, loadingCombined, selectedAdminTab]);
+
+  useEffect(() => {
+
+    if (combinedFiltered.length === 0) return;
+
+    const filtered = combinedFiltered.filter((item) => item.feedbacks && item.feedbacks.length > 0);
+
+    // Calculate feedbacksResults
+    const totalFeedbacks = filtered.reduce((acc, item) => {
+      return acc + item.feedbacks.length;
+    }, 0);
+
+    const totalFeedbackPoints = filtered.reduce((acc, item) => {
+      return acc + item.feedbacks.reduce((acc, item) => {
+        return acc + item.points;
+      }, 0);
+    }, 0);
+
+    const averageFeedbackPoints = totalFeedbackPoints / totalFeedbacks;
+
+    setFeedbacksResults({
+      totalFeedbacks: totalFeedbacks,
+      averageFeedbackPoints: averageFeedbackPoints || 0,
+    });
+
+  }, [combinedFiltered]);
 
   return (
     <div
-      className='Full Flex StartLeft'
+      className='Full Flex Column StartLeft'
       style={{
         minHeight: '30rem',
         padding: '2rem',
+        gap: '2rem',
       }}>
+      <div
+        className='Flex StartLeft'
+        style={{
+          marginLeft: '-0.35rem',
+          marginBottom: '0.25rem',
+          gap: '2rem'
+        }}>
+        <AdminStats
+          label='Total feedbacks'
+          value={feedbacksResults.totalFeedbacks}
+        />
+        <AdminStats
+          label='Average feedback points'
+          value={feedbacksResults.averageFeedbackPoints.toFixed(2)}
+        />
+      </div>
       <div
         className='Full Flex Column StartLeft'
         style={{ gap: '2rem' }}>
         <div className='Full Flex StartLeft'>
-          <StyledLabel>Subject</StyledLabel>
           <StyledLabel>Student</StyledLabel>
           <StyledLabel>Feedback</StyledLabel>
           <StyledLabel>Comment</StyledLabel>
         </div>
-        {loadingCombined === false && (
-          combined.map((item, index) => (
-            <div
-              key={index}
-              className='Full Flex StartLeft'
-              style={{
-                paddingTop: '2rem',
-                // borderTop: '1px solid rgba(0, 0, 0, 0.01)',
-                borderTop: '1px solid rgba(0, 0, 0, 0.03)',
-              }}>
-              <p className='Mid' style={styleItem}>{item.subjectName}</p>
+        {loadingCombined === false &&
+          combinedFiltered && combinedFiltered.length > 0 && (
+            combinedFiltered.map((item, index) => (
               <div
-                className='Flex Column StartLeft'
-                style={{ gap: '2rem' }}>
-                {item.feedbacks && item.feedbacks.map((feedback, index) => (
-                  <div
-                    className='Flex StartLeft'
-                    key={index}
-                    style={index === 0 ? { paddingTop: '0' } : {
-                      paddingTop: '2rem',
-                      // borderTop: '1px solid rgba(0, 0, 0, 0.01)',
-                      borderTop: '1px solid rgba(0, 0, 0, 0.03)',
-                    }}>
-                    <p className="Mid" style={styleItem}>{feedback.profile.firstname}&nbsp;{feedback.profile.lastname}</p>
-                    {/* <ProfileData profile={feedback.profile} /> */}
+                key={index}
+                className='Full Flex StartLeft'
+                style={{
+                  paddingTop: '2rem',
+                  borderTop: '1px solid var(--lighterBorderBlack)',
+                }}>
+                <div
+                  className='Flex Column StartLeft'
+                  style={{ gap: '2rem' }}>
+                  {item.feedbacks && item.feedbacks.map((feedback, index) => (
                     <div
-                      className='Full Flex LeftCenter'
-                      style={{
-                        ...styleItem,
-                        gap: '0.5rem',
-                        height: '1.5rem',
+                      className='Flex StartLeft'
+                      key={index}
+                      style={index === 0 ? { paddingTop: '0' } : {
+                        paddingTop: '2rem',
+                        borderTop: '1px solid var(--lighterBorderBlack)',
                       }}>
-                      {[...Array(5)].map((_, index) => (
-                        <button
-                          key={index}
-                          style={{
-                            width: '1rem',
-                            height: '1rem',
-                            borderRadius: '50%',
-                            backgroundColor: feedback.points > index ? 'var(--bgGreyDarker)' : 'var(--borderBlack)',
-                            marginRight: '0.5rem',
-                          }}
-                        />
-                      ))}
+                      <ProfileData profile={feedback.profile} />
+                      <div
+                        className='Full Flex LeftCenter'
+                        style={{
+                          ...styleItem,
+                          gap: '0.5rem',
+                          height: '1.5rem',
+                        }}>
+                        {[...Array(5)].map((_, index) => (
+                          <button
+                            key={index}
+                            style={{
+                              width: '1rem',
+                              height: '1rem',
+                              borderRadius: '50%',
+                              backgroundColor: feedback.points > index ? 'var(--bgGreyDarker)' : 'var(--borderBlack)',
+                              marginRight: '0.5rem',
+                            }}
+                          />
+                        ))}
+                      </div>
+                      <p className={feedback.note ? 'Mid' : 'Mid SecondaryText'} style={{ width: '28rem' }}>{feedback.note ? feedback.note : 'No comment'}</p>
                     </div>
-                    <p className={feedback.note ? 'Mid' : 'Mid SecondaryText'} style={{ width: '28rem' }}>{feedback.note ? feedback.note : 'No comment'}</p>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
-          )))}
+            )))}
       </div>
     </div>
   );
 }
 
+function AdminStats({ label, value }) {
+  return (
+    <div
+      className="Flex Column Center"
+      style={{
+        gap: '0.5rem',
+        padding: '1rem 1.5rem',
+        border: '1px solid var(--lighterBorderBlack)',
+        borderRadius: '0.5rem',
+        height: 'fit-content',
+      }}>
+      <p className="Mid">{label}</p>
+      {value && <p className="Mid Bold">{value}</p>}
+    </div>
+  );
+}
+
+function AdminTabs() {
+
+  const {
+    subjects,
+    loadingSubjects,
+    selectedAdminTab,
+    setSelectedAdminTab,
+  } = useProfile();
+
+  return (
+    <ul
+      className="Full Flex StartLeft"
+      style={{
+        gap: '4rem'
+      }}>
+      {/* <p className='Mid Bold'>Subject</p> */}
+      {loadingSubjects === false && subjects.map((tab, index) => {
+        return (
+          <li
+            key={index}
+            className={tab.subjectName === selectedAdminTab ? '' : 'SecondaryText'}
+            onClick={() => setSelectedAdminTab(tab.subjectName)}
+            style={{
+              position: 'relative',
+              cursor: 'pointer',
+            }}>
+            <p className="Mid">{tab.subjectName}</p>
+            {tab.subjectName === selectedAdminTab ? (
+              <motion.div className="underline" style={styleUnderline} layoutId="underline" />
+            ) : null}
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
 const ProfileData = ({ profile }) => (
-  <p className="Mid" style={styleItem}>{profile.firstname}&nbsp;{profile.lastname}&nbsp;{profile.studentNumber}</p>
+  <p className="Mid" style={styleItem}>{profile.firstname}&nbsp;{profile.lastname}</p>
 );
 
 Home.getLayout = function getLayout(page) {
