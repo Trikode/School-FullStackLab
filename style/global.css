@@ -9,7 +9,7 @@
 body,
 main {
   font-family: var(--font);
-  overflow-x: hidden;
+  /* overflow-x: hidden; */
 }
 
 .Full {
