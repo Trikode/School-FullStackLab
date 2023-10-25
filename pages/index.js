@@ -223,7 +223,7 @@ function FeedbackNote({ idFeedback, idSubject, note }) {
         profile: profile.id,
       });
     if (error) {
-      console.log("🚀 ~ file: index.js:217 ~ insertFeedbackNote ~ error:", error);
+      console.log("🚀 ~ file: index.js:226 ~ insertFeedbackNote ~ error:", error);
     } else {
       getFeedbacks();
     }
@@ -485,7 +485,6 @@ function AdminTabs() {
       style={{
         gap: '4rem'
       }}>
-      {/* <p className='Mid Bold'>Subject</p> */}
       {loadingSubjects === false && subjects.map((tab, index) => {
         return (
           <li

@@ -163,7 +163,7 @@ export const UserProvider = ({ children }) => {
     if (data) {
       setFeedbacks(data);
     } else if (error) {
-      console.log("🚀 ~ file: user.js:148 ~ getFeedbacks ~ error:", error);
+      console.log("🚀 ~ file: user.js:166 ~ getFeedbacks ~ error:", error);
     }
     setLoadingFeedbacks(false);
   }

@@ -96,7 +96,6 @@ const AccountPreview = () => {
   const [isNew, setIsNew] = useState(false);
   const {
     profile,
-    isAdmin,
     loadingProfile,
     hasFinished,
     getProfileFromSupabase,
@@ -142,7 +141,7 @@ const AccountPreview = () => {
       })
       .eq('id', profile.id);
     if (error) {
-      console.log("🚀 ~ file: SideMenu.jsx:367 ~ updateProfile ~ error:", error);
+      console.log("🚀 ~ file: SideMenu.jsx:144 ~ updateProfile ~ error:", error);
     } else {
       await getProfileFromSupabase();
       setFirstName('');
