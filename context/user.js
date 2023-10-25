@@ -3,8 +3,6 @@ import { createContext, useContext, useEffect, useState } from 'react';
 
 import { useSupabaseClient, useUser } from '@supabase/auth-helpers-react';
 
-import { get } from 'http';
-
 const ProviderContext = createContext();
 export const useProfile = () => useContext(ProviderContext);
 
@@ -97,7 +95,6 @@ export const UserProvider = ({ children }) => {
       setLoadingCombined(true);
 
       setSelectedAdminTab('');
-
     };
   }, [user]);
 
@@ -343,7 +340,6 @@ export const UserProvider = ({ children }) => {
     // Admin
     selectedAdminTab,
     setSelectedAdminTab,
-
   };
 
   return <ProviderContext.Provider value={exposed}>{children}</ProviderContext.Provider>;

@@ -3,7 +3,6 @@ import { useProfile } from "../context/user";
 import Button from "../components/elements/Button";
 import { TransitionElement } from "./TransitionElement";
 
-
 export default function SignInLayout({ children, text }) {
 
   const {

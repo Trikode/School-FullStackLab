@@ -80,48 +80,6 @@ export function IconButton({
   );
 }
 
-export function ContentInput({ label, Element }) {
-  return (
-    <label
-      className="Flex Center"
-      style={{
-        height: '3.5rem',
-        width: '15rem',
-        borderRadius: '0.5rem',
-        border: '1px solid var(--borderBlack)',
-        backgroundColor: 'var(--bgGrey)',
-        cursor: 'pointer',
-        outline: 'none',
-        gap: '0.8rem',
-      }}>
-      {Element}
-      <img src="/UploadImage.svg" style={{ height: '1.18rem' }} />
-      <p className="Mid">{label}</p>
-    </label>
-  );
-}
-
-export function ButtonRemoveContent({ onClick }) {
-  return (
-    <button
-      className="Flex Center"
-      onClick={onClick}
-      style={{
-        height: '3.5rem',
-        width: '15rem',
-        borderRadius: '0.5rem',
-        border: '1px solid var(--borderBlack)',
-        backgroundColor: 'var(--bgGrey)',
-        cursor: 'pointer',
-        outline: 'none',
-        gap: '0.8rem',
-      }}>
-      <img src="/Remove.svg" style={{ height: '1.20rem' }} />
-      <p className="Mid"> Remove content </p>
-    </button>
-  );
-}
-
 // Sign-in and Sign-up buttons
 export function ButtonSocialLogin({
   children,
@@ -147,23 +105,6 @@ export function ButtonSocialLogin({
   );
 }
 
-export function ButtonRouterBack({
-  moreStyle = {},
-  onClick,
-}) {
-  return (
-    <div
-      className='Flex Center'
-      style={{ cursor: 'pointer', ...moreStyle }}
-      onClick={onClick}>
-      <img
-        src="/Back.svg"
-        style={iconSize} />
-      <p className='Mid SecondaryText onHover'>Back</p>
-    </div>
-  );
-}
-
 export function ButtonClose({ onClick }) {
   return (
     <button
@@ -179,22 +120,3 @@ export function ButtonClose({ onClick }) {
     </button>
   );
 }
-
-const dotStyle = {
-  width: '0.15rem',
-  height: '0.15rem',
-  borderRadius: '50%',
-  backgroundColor: 'var(--bgGreyDarker)',
-};
-
-const ThreeDotsIcon = () => {
-  return (
-    <div
-      className='Flex Column Center'
-      style={{ gap: '0.2rem' }}>
-      <div style={dotStyle} />
-      <div style={dotStyle} />
-      <div style={dotStyle} />
-    </div>
-  );
-};
